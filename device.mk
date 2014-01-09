@@ -18,37 +18,17 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
 #Andromadus Vendor include
 
-# The gps config appropriate for this device
-PRODUCT_COPY_FILES += \
-    device/htc/vision/configs/gps.conf:system/etc/gps.conf
-
-## (1) First, the most specific values, i.e. the aspects that are specific to GSM
-
 PRODUCT_COPY_FILES += \
     device/htc/vision/ramdisk/init.vision.rc:root/init.vision.rc \
     device/htc/vision/ramdisk/ueventd.vision.rc:root/ueventd.vision.rc \
     device/htc/msm7x30-common/rootdir/fstab.msm7x30:root/fstab.vision
 # the line above is terribly dirty hack. But fstab doesn't work without it for some reason.
 
-## (2) Also get non-open-source GSM-specific aspects if available
-$(call inherit-product-if-exists, vendor/htc/vision/device-vendor.mk)
-
-## (3)  Finally, the least specific parts, i.e. the non-GSM-specific aspects
-PRODUCT_PROPERTY_OVERRIDES += \
-    ro.com.google.locationfeatures=1 \
-    ro.com.google.networklocation=1 \
-    ro.com.google.gmsversion=2.3_r3 \
-    ro.setupwizard.enable_bypass=1 \
-    ro.kernel.android.checkjni=0
-
 # Override /proc/sys/vm/dirty_ratio on UMS
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.vold.umsdirtyratio=20
 
 DEVICE_PACKAGE_OVERLAYS += device/htc/vision/overlay
-
-PRODUCT_COPY_FILES += \
-    frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml \
 
 # gsm config xml file
 PRODUCT_COPY_FILES += \
@@ -116,8 +96,8 @@ PRODUCT_COPY_FILES += \
     device/htc/vision/firmware/vidc_720p_mp2_dec_mc.fw:system/etc/firmware/vidc_720p_mp2_dec_mc.fw \
     device/htc/vision/firmware/Vision_SPK.acdb:system/etc/firmware/Vision_SPK.acdb 
 
-# Alternate NAM gps.conf to NAM package
-PRODUCT_COPY_FILES += device/common/gps/gps.conf_US:system/etc/nam/gps.conf
+# The gps config appropriate for this device
+PRODUCT_COPY_FILES += device/htc/vision/configs/gps.conf:system/etc/gps.conf
 
 # Copy bcm4329 firmware
 $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4329/device-bcm.mk)
@@ -126,8 +106,11 @@ $(call inherit-product-if-exists, hardware/broadcom/wlan/bcmdhd/firmware/bcm4329
 $(call inherit-product, device/htc/msm7x30-common/msm7x30.mk)
 
 # htc audio settings
-$(call inherit-product, device/htc/vision/media_htcaudio.mk)
-$(call inherit-product, device/htc/vision/media_a1026.mk)
+PRODUCT_PROPERTY_OVERRIDES += \
+      media.a1026.nsForVoiceRec = 0 \
+      media.a1026.enableA1026 = 1 \
+      htc.audio.alt.enable=0 \
+      htc.audio.hac.enable=0
 
 $(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
 
